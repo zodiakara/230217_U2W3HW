@@ -129,6 +129,12 @@ blogpostsRouter.post("/:blogpostId/comments", async (req, res, next) => {
       );
       res.send(updatedPost);
     } else {
+      next(
+        createHttpError(
+          404,
+          `Post with id ${req.params.blogpostId} not found!!`
+        )
+      );
     }
   } catch (error) {
     next(error);
@@ -163,9 +169,11 @@ blogpostsRouter.get(
         if (singleComment) {
           res.send(singleComment);
         } else {
-          createHttpError(
-            404,
-            `Comment with id ${req.params.commentId} not found!!`
+          next(
+            createHttpError(
+              404,
+              `Comment with id ${req.params.commentId} not found!!`
+            )
           );
         }
       } else {
@@ -185,8 +193,34 @@ blogpostsRouter.put(
   "/:blogpostId/comments/:commentId",
   async (req, res, next) => {
     try {
-      if (condition) {
+      const blog = await PostsModel.findByIdAndUpdate(req.params.blogpostId);
+      if (blog) {
+        const index = blog.comments.findIndex(
+          (comment) => comment._id.toString() === req.params.commentId
+        );
+        if (index !== -1) {
+          blog.comments[index] = {
+            ...blog.comments[index].toObject(),
+            ...req.body,
+            updatedAt: new Date(),
+          };
+          await blog.save();
+          res.send(blog);
+        } else {
+          next(
+            createHttpError(
+              404,
+              `Comment with id ${req.params.commentId} not found!!`
+            )
+          );
+        }
       } else {
+        next(
+          createHttpError(
+            404,
+            `Post with id ${req.params.blogpostId} not found!!`
+          )
+        );
       }
     } catch (error) {
       next(error);
@@ -197,8 +231,20 @@ blogpostsRouter.delete(
   "/:blogpostId/comments/:commentId",
   async (req, res, next) => {
     try {
-      if (condition) {
+      const updatedPost = await PostsModel.findByIdAndUpdate(
+        req.params.blogpostId,
+        { $pull: { comments: { _id: req.params.commentId } } }
+      );
+      if (updatedPost) {
+        res.status(204).send(updatedPost);
+        console.log(
+          `comment with id ${req.params.commentId} successfully deleted`
+        );
       } else {
+        createHttpError(
+          404,
+          `Post with id ${req.params.blogpostId} not found!!`
+        );
       }
     } catch (error) {
       next(error);
