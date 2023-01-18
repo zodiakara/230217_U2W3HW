@@ -16,6 +16,14 @@ const postsSchema = new Schema(
       avatar: { type: String },
     },
     content: { type: String, required: true },
+    comments: [
+      {
+        comment: String,
+        rate: Number,
+        createdAt: Date,
+        updatedAt: Date,
+      },
+    ],
   },
   { timestamps: true }
 );
