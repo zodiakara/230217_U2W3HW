@@ -43,6 +43,22 @@ blogpostsRouter.get("/:blogpostId", async (req, res, next) => {
 
 blogpostsRouter.put("/:blogpostId", async (req, res, next) => {
   try {
+    const updatedPost = await PostsModel.findByIdAndUpdate(
+      req.params.blogpostId,
+      req.body,
+      { new: true, runValidators: true }
+    ); // By default findByIdAndUpdate returns the record pre-modification. If you want to get back the newly updated record you shall use new:true
+    // By default validation is off in the findByIdAndUpdate --> runValidators:true
+    if (updatedPost) {
+      res.send(updatedPost);
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Post with id ${req.params.blogpostId} not found!!`
+        )
+      );
+    }
   } catch (error) {
     next(error);
   }
@@ -50,6 +66,19 @@ blogpostsRouter.put("/:blogpostId", async (req, res, next) => {
 
 blogpostsRouter.delete("/:blogpostId", async (req, res, next) => {
   try {
+    const deletedPost = await PostsModel.findByIdAndDelete(
+      req.params.blogpostId
+    );
+    if (deletedPost) {
+      res.status(204).send();
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Post with id ${req.params.blogpostId} not found!!`
+        )
+      );
+    }
   } catch (error) {
     next(error);
   }
