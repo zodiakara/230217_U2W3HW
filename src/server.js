@@ -8,6 +8,7 @@ import {
   notFoundHandler,
   genericErrorHandler,
 } from "./errorHandlers.js";
+import authorsRouter from "./api/authors/index.js";
 
 const server = express();
 const port = process.env.PORT;
@@ -16,6 +17,7 @@ server.use(cors());
 server.use(express.json());
 
 server.use("/blogposts", blogpostsRouter);
+server.use("/authors", authorsRouter);
 
 server.use(badRequestHandler);
 server.use(notFoundHandler);

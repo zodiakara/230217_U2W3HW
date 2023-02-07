@@ -4,6 +4,7 @@ import PostsModel from "./model.js";
 import q2m from "query-to-mongo";
 
 const blogpostsRouter = express.Router();
+const be_url = process.env.BE_URL;
 
 blogpostsRouter.post("/", async (req, res, next) => {
   try {
@@ -15,14 +16,14 @@ blogpostsRouter.post("/", async (req, res, next) => {
   }
 });
 
-// blogpostsRouter.get("/", async (req, res, next) => {
-//   try {
-//     const posts = await PostsModel.find();
-//     res.send(posts);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+blogpostsRouter.get("/", async (req, res, next) => {
+  try {
+    const posts = await PostsModel.find();
+    res.send(posts);
+  } catch (error) {
+    next(error);
+  }
+});
 
 blogpostsRouter.get("/:blogpostId", async (req, res, next) => {
   try {
@@ -100,12 +101,13 @@ blogpostsRouter.get("/", async (req, res, next) => {
     )
       .sort()
       .skip()
-      .limit();
+      .limit(2);
     res.send({
-      links: mongoQuery.links("http://localhost:3001/blogposts", total),
+      links: mongoQuery.links(`${be_url}/blogposts`, total),
       totalPages: Math.ceil(total / mongoQuery.options.limit),
       posts,
     });
+    console.log(mongoQuery.links);
   } catch (error) {
     next(error);
   }

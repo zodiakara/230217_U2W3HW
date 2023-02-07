@@ -12,14 +12,15 @@ const postsSchema = new Schema(
       unit: { type: String },
     },
     author: {
-      name: { type: String },
-      avatar: { type: String },
+      type: mongoose.Types.ObjectId,
+      ref: "Author",
+      required: true,
     },
     content: { type: String, required: true },
     comments: [
       {
-        comment: String,
-        rate: Number,
+        comment: { type: String, required: true },
+        rate: { type: Number, required: true },
         createdAt: Date,
         updatedAt: Date,
       },

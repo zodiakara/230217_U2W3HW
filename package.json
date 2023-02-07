@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/zodiakara/230217_U2W3HW#readme",
   "dependencies": {
+    "atob": "^2.1.2",
+    "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-list-endpoints": "^6.0.0",
