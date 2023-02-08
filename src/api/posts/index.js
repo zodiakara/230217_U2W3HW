@@ -18,7 +18,10 @@ blogpostsRouter.post("/", async (req, res, next) => {
 
 blogpostsRouter.get("/", async (req, res, next) => {
   try {
-    const posts = await PostsModel.find();
+    const posts = await PostsModel.find().populate({
+      path: "author",
+      select: "name surname image",
+    });
     res.send(posts);
   } catch (error) {
     next(error);
@@ -27,7 +30,10 @@ blogpostsRouter.get("/", async (req, res, next) => {
 
 blogpostsRouter.get("/:blogpostId", async (req, res, next) => {
   try {
-    const post = await PostsModel.findById(req.params.blogpostId);
+    const post = await PostsModel.findById(req.params.blogpostId).populate({
+      path: "author",
+      select: "name surname image",
+    });
     if (post) {
       res.send(post);
     } else {
@@ -99,9 +105,14 @@ blogpostsRouter.get("/", async (req, res, next) => {
       mongoQuery.criteria,
       mongoQuery.options.fields
     )
+      .populate({
+        path: "author",
+        select: "name surname image",
+      })
       .sort()
       .skip()
       .limit(2);
+
     res.send({
       links: mongoQuery.links(`${be_url}/blogposts`, total),
       totalPages: Math.ceil(total / mongoQuery.options.limit),
