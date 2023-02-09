@@ -9,8 +9,9 @@ const AuthorsSchema = new Schema(
     surname: { type: String, required: true },
     avatar: { type: String, required: false },
     email: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
     role: { type: String, enum: ["Author", "Admin"], default: "Author" },
+    googleId: { type: String, required: false },
   },
   { timestamps: true }
 );

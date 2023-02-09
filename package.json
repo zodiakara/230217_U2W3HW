@@ -29,6 +29,8 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.3",
+    "passport": "^0.6.0",
+    "passport-google-oauth20": "^2.0.0",
     "query-to-mongo": "^0.10.2"
   },
   "devDependencies": {

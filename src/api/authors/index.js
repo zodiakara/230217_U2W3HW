@@ -4,6 +4,7 @@ import AuthorsModel from "./model.js";
 import PostsModel from "../posts/model.js";
 import { JWTAuthMiddleware } from "../../lib/auth/jwtAuth.js";
 import { createAccessToken } from "../../lib/auth/tools.js";
+import passport from "passport";
 
 const authorsRouter = express.Router();
 
@@ -27,17 +28,30 @@ authorsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
 });
 
 authorsRouter.get(
-  "/me/stories",
-  basicAuthMiddleware,
-  async (req, res, next) => {
-    try {
-      const stories = await PostsModel.find({ author: req.author._id });
-      res.send(stories);
-    } catch (error) {
-      next(error);
-    }
-  }
+  "/googleLogin",
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
+
+authorsRouter.get(
+  "/googleRedirect",
+  passport.authenticate("google", { session: false }),
+  async (req, res, next) => {
+    console.log(req.user);
+    res.redirect(`${process.env.FE_URL}/?accessToken=${req.user.accessToken}`);
+  }
+),
+  authorsRouter.get(
+    "/me/stories",
+    basicAuthMiddleware,
+    async (req, res, next) => {
+      try {
+        const stories = await PostsModel.find({ author: req.author._id });
+        res.send(stories);
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
 
 authorsRouter.get("/:authorId", async (req, res, next) => {
   try {
@@ -50,6 +64,21 @@ authorsRouter.get("/:authorId", async (req, res, next) => {
 
 authorsRouter.put("/:authorId", async (req, res, next) => {
   try {
+    const updatedAuthor = await AuthorsModel.findByIdAndUpdate(
+      req.params.authorId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (updatedAuthor) {
+      res.send(updatedAuthor);
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Author with id ${req.params.authorId} not found!!`
+        )
+      );
+    }
   } catch (error) {
     next(error);
   }
@@ -57,6 +86,19 @@ authorsRouter.put("/:authorId", async (req, res, next) => {
 
 authorsRouter.delete("/:authorId", async (req, res, next) => {
   try {
+    const deletedAuthor = await AuthorsModel.findByIdAndDelete(
+      req.params.authorId
+    );
+    if (deletedAuthor) {
+      res.status(204).send();
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Author with id ${req.params.authorId} not found!!`
+        )
+      );
+    }
   } catch (error) {
     next(error);
   }
